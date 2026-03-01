@@ -47,6 +47,54 @@ echo $! > "$PID_FILE"
 echo -e "${YELLOW}⚙️ 正在为当前项目注入 MCP 配置...${NC}"
 gitnexus setup
 
+# ==========================================
+# 🔧 自动修复 OpenCode 的 MCP 配置格式
+# ==========================================
+node -e "
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
+const openCodePaths = [
+    path.join(os.homedir(), '.opencode.json'),
+    path.join(os.homedir(), '.config', 'opencode', 'opencode.json')
+];
+
+let fixed = false;
+openCodePaths.forEach(file => {
+    if (fs.existsSync(file)) {
+        try {
+            let config = JSON.parse(fs.readFileSync(file, 'utf8'));
+            if (config.mcp && config.mcp.gitnexus) {
+                const gn = config.mcp.gitnexus;
+                // 检测是否为旧格式（有 args 数组）
+                if (gn.args && Array.isArray(gn.args) && gn.command && typeof gn.command === 'string') {
+                    const oldCommand = gn.command;
+                    const oldArgs = gn.args;
+                    
+                    // 转换为 OpenCode 需要的数组格式
+                    config.mcp.gitnexus = {
+                        type: 'local',
+                        command: [oldCommand, ...oldArgs],
+                        enabled: true
+                    };
+                    
+                    fs.writeFileSync(file, JSON.stringify(config, null, 2));
+                    console.log('   ✅ 已自动修复 OpenCode 的 MCP 配置文件格式: ' + file);
+                    fixed = true;
+                }
+            }
+        } catch (e) {
+            // 忽略解析错误
+        }
+    }
+});
+
+if (!fixed) {
+    console.log('   ℹ️ OpenCode 配置无需修复或未找到配置文件。');
+}
+"
+
 HOOK_DIR=".git/hooks"
 HOOK_FILE="$HOOK_DIR/post-commit"
 echo -e "${YELLOW}🪝 配置后台自动更新钩子...${NC}"
