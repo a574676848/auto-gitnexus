@@ -2,7 +2,7 @@
 
 # ==========================================
 # Script: gitnexus-wiki.sh
-# Description: 异步生成 GitNexus Wiki，支持中文 Prompt 注入
+# Description: 异步生成 GitNexus Wiki，使用中文版 prompts
 # ==========================================
 
 GREEN='\033[0;32m'
@@ -27,9 +27,9 @@ if [ ! -d ".gitnexus" ]; then
 fi
 
 # ==========================================
-# 🛑 精准中文 Prompt 注入引擎
+# 🛑 中文 Prompts 替换引擎
 # ==========================================
-echo -e "${YELLOW}🇨🇳 正在执行源码级深度扫描，精准注入【中文输出】指令...${NC}"
+echo -e "${YELLOW}🇨🇳 正在替换 GitNexus 源码中的 prompts 为中文版...${NC}"
 node -e "
 const fs = require('fs'); const path = require('path'); const { execSync } = require('child_process');
 try {
@@ -37,7 +37,7 @@ try {
     const pkgPath = path.join(root, 'gitnexus');
     
     if (!fs.existsSync(pkgPath)) {
-        console.log('   ⚠️ 未找到全局 gitnexus 目录，跳过注入。');
+        console.log('   ⚠️ 未找到全局 gitnexus 目录，跳过替换。');
         process.exit(0);
     }
 
@@ -50,53 +50,34 @@ try {
         process.exit(0);
     }
 
-    const cnInstruction = '\\\\n\\\\nIMPORTANT: You MUST generate the entire wiki, including all headings, explanations, and summaries, strictly in Simplified Chinese (简体中文). Do NOT use English unless for code variables.';
-    let totalPatched = 0;
-
-    function patchDir(dir) {
-        for (const f of fs.readdirSync(dir)) {
-            const fullPath = path.join(dir, f);
-            if (fs.statSync(fullPath).isDirectory()) {
-                patchDir(fullPath);
-            } else if (fullPath.endsWith('.js')) {
-                let code = fs.readFileSync(fullPath, 'utf8');
-                // 如果已经注入过，则跳过
-                if (code.includes('Simplified Chinese')) continue;
-                
-                let patched = false;
-                
-                // 策略 1: 精准拦截 LLM API 调用中的 system prompt
-                // 只匹配包含 'role' 和 'content' 的对象，且 content 中包含 wiki 相关关键词
-                code = code.replace(/(role:\\s*['\"\`]system['\"\`]\\s*,\\s*content:\\s*['\"\`])([\\s\\S]*?(?:wiki|documentation|architecture)[\\s\\S]*?)(['\"\`])/gi, (m, p, c, s) => {
-                    patched = true; return p + c + cnInstruction + s;
-                });
-                
-                // 策略 2: 精准拦截包含完整句子的 wiki 生成指令
-                // 只匹配包含完整句子的字符串，避免破坏代码中的变量引用
-                code = code.replace(/([\"\`])([\\s\\S]*?(?:Generate|Create|Write)[\\s\\S]+(?:wiki|documentation|architecture)[\\s\\S]*?)([\"\`])/gi, (m, q, c) => {
-                    patched = true; return q + c + cnInstruction + q;
-                });
-
-                if (patched) {
-                    fs.writeFileSync(fullPath, code, 'utf8');
-                    totalPatched++;
-                }
-            }
-        }
+    // 读取中文版 prompts
+    const zhPromptsPath = path.join(__dirname, 'prompts-zh.js');
+    if (!fs.existsSync(zhPromptsPath)) {
+        console.log('   ⚠️ 未找到中文版 prompts 文件: ' + zhPromptsPath);
+        process.exit(0);
     }
+
+    const zhPromptsContent = fs.readFileSync(zhPromptsPath, 'utf8');
     
-    ['dist', 'src', 'bin', 'lib'].forEach(subDir => {
-        const targetDir = path.join(pkgPath, subDir);
-        if (fs.existsSync(targetDir)) patchDir(targetDir);
-    });
+    // 目标文件路径
+    const targetPromptsPath = path.join(pkgPath, 'dist', 'core', 'wiki', 'prompts.js');
     
-    if (totalPatched > 0) {
-        console.log('   ✅ 成功！已将中文指令精准写入 ' + totalPatched + ' 个文件中。');
-    } else {
-        console.log('   ✅ 检查完毕：源码已包含中文指令或无需注入。');
+    if (!fs.existsSync(targetPromptsPath)) {
+        console.log('   ⚠️ 未找到目标 prompts 文件: ' + targetPromptsPath);
+        process.exit(0);
     }
+
+    // 备份原文件
+    const backupPath = targetPromptsPath + '.backup';
+    fs.copyFileSync(targetPromptsPath, backupPath);
+    
+    // 替换为中文版
+    fs.writeFileSync(targetPromptsPath, zhPromptsContent, 'utf8');
+    
+    console.log('   ✅ 成功！已将 prompts.js 替换为中文版。');
+    console.log('   📦 原文件已备份至: ' + backupPath);
 } catch(e) {
-    console.log('   ❌ 注入过程发生未知错误: ' + e.message);
+    console.log('   ❌ 替换过程发生错误: ' + e.message);
 }
 "
 # ==========================================
