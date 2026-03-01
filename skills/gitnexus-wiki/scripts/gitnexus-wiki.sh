@@ -50,8 +50,8 @@ try {
         process.exit(0);
     }
 
-    // 读取中文版 prompts（脚本在 scripts/ 目录，prompts-zh.js 在父目录）
-    const zhPromptsPath = path.join(__dirname, '..', 'prompts-zh.js');
+    // 读取中文版 prompts（与脚本在同一目录）
+    const zhPromptsPath = path.join(__dirname, 'prompts-zh.js');
     if (!fs.existsSync(zhPromptsPath)) {
         console.log('   ⚠️ 未找到中文版 prompts 文件: ' + zhPromptsPath);
         process.exit(0);
