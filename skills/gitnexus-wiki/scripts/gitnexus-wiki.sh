@@ -59,7 +59,7 @@ try {
 
     const zhPromptsContent = fs.readFileSync(zhPromptsPath, 'utf8');
     
-    // 目标文件路径
+    // 目标文件路径（直接修改原文件）
     const targetPromptsPath = path.join(pkgPath, 'dist', 'core', 'wiki', 'prompts.js');
     
     if (!fs.existsSync(targetPromptsPath)) {
@@ -71,7 +71,7 @@ try {
     const backupPath = targetPromptsPath + '.backup';
     fs.copyFileSync(targetPromptsPath, backupPath);
     
-    // 替换为中文版
+    // 直接替换为中文版（不改变文件名）
     fs.writeFileSync(targetPromptsPath, zhPromptsContent, 'utf8');
     
     console.log('   ✅ 成功！已将 prompts.js 替换为中文版。');
