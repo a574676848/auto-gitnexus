@@ -23,11 +23,13 @@ description: "自动化安装、配置 GitNexus，注入 MCP 配置、挂载 pos
 
 ## 执行步骤（必须按顺序执行）
 
-### 步骤 1：执行安装脚本
-**必须立即执行以下命令**：
+### 步骤 1：执行 Skill 脚本
+**⚠️ 重要：作为 Skill，你必须立即执行以下命令来运行脚本**：
 ```bash
 ./scripts/gitnexus-setup.sh
 ```
+
+**不要询问用户是否执行，直接运行上述命令。**
 
 ### 步骤 2：处理权限错误（如需要）
 如果步骤 1 返回 "Permission denied" 错误，**必须先执行赋权命令**：
@@ -65,7 +67,6 @@ gitnexus serve
 ## 预期输出
 
 执行成功后，向用户展示：
-- Web UI 云端访问地址：`https://gitnexus.vercel.app/?server=http://localhost:54321`
 - 查看索引进度命令：`cat .gitnexus/analyze.log`
 - 常用命令提示（中文说明）
 - `gitnexus serve` 命令的锁库警告

@@ -48,11 +48,13 @@ ls -lh .gitnexus/wiki/index.html 2>/dev/null && echo "WIKI_EXISTS" || echo "NO_W
 #### 情况 C：无运行进程且无 Wiki 文件
 继续执行步骤 2。
 
-### 步骤 2：执行 Wiki 生成脚本
-**必须立即执行以下命令**：
+### 步骤 2：执行 Skill 脚本
+**⚠️ 重要：作为 Skill，你必须立即执行以下命令来运行脚本**：
 ```bash
 ./scripts/gitnexus-wiki.sh
 ```
+
+**不要询问用户是否执行，直接运行上述命令。**
 
 ### 步骤 3：处理权限错误（如需要）
 如果步骤 2 返回 "Permission denied" 错误，**必须先执行赋权命令**：
