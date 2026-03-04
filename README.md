@@ -1,4 +1,4 @@
-# Auto-devnexus
+# Auto-Devnexus
 
 <p align="center">
   <strong>🤖 AI 驱动的 devnexus 自动化 Skill 集合</strong>
