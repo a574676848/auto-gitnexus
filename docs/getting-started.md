@@ -15,8 +15,9 @@
 
 - **操作系统**: macOS, Linux, Windows (WSL)
 - **Git**: >= 2.0
-- **Node.js**: >= 16
-- **npm**: >= 8
+- **Node.js**: >= 16 (仅 GitNexus 相关技能需要)
+- **npm**: >= 8 (仅 GitNexus 相关技能需要)
+- **Python**: >= 3.6 (仅 Jira 集成技能需要)
 
 ### 验证环境
 
@@ -24,11 +25,14 @@
 # 检查 Git
 git --version
 
-# 检查 Node.js
+# 检查 Node.js (仅 GitNexus 相关技能需要)
 node --version
 
-# 检查 npm
+# 检查 npm (仅 GitNexus 相关技能需要)
 npm --version
+
+# 检查 Python (仅 Jira 集成技能需要)
+python --version 或 python3 --version
 ```
 
 ## 安装
@@ -73,6 +77,17 @@ AI 助手将：
 2. 异步生成项目文档
 3. 保存到 `.gitnexus/wiki/` 目录
 
+#### Jira 工单操作
+
+> "帮我在 Jira 创建一个工单"
+> "查询 Jira 中我的待办工单"
+> "更新 TEST-123 工单的状态"
+
+AI 助手将：
+1. 检查 Jira 配置（首次使用会提示输入）
+2. 执行相应的工单操作
+3. 更新记忆系统以优化后续操作
+
 ### 方式二：手动执行
 
 #### 初始化 GitNexus
@@ -115,6 +130,19 @@ AI 助手将：
 你可以通过环境变量传入：
 ```bash
 API_KEY="your-api-key" BASE_URL="https://api.openai.com/v1" MODEL="gpt-4" ./skills/gitnexus-wiki/scripts/gitnexus-wiki.sh
+```
+
+#### Jira 集成操作
+
+```bash
+# 配置 Jira 连接信息
+python skills/jira-integration/scripts_py/auth.py --domain "https://your-jira-domain.com" --user "your-username" --token "your-password-or-api-token"
+
+# 查询工单
+python skills/jira-integration/scripts_py/search.py --jql "assignee = currentUser() AND status = 'Open'"
+
+# 获取工单详情
+python skills/jira-integration/scripts_py/get_issue.py --issue "TEST-123"
 ```
 
 ## 故障排除
@@ -186,10 +214,30 @@ gitnexus analyze
 cat .gitnexus/analyze.log
 ```
 
+### Jira 认证失败
+
+**问题**: 执行 Jira 操作时提示认证失败
+
+**解决**:
+```bash
+# 重新配置 Jira 连接信息
+python skills/jira-integration/scripts_py/auth.py --domain "https://your-jira-domain.com" --user "your-username" --token "your-password-or-api-token"
+```
+
+### Jira API 400 错误
+
+**问题**: 执行 Jira 操作时返回 400 错误
+
+**解决**:
+- 检查 JSON payload 格式是否正确
+- 参考 `skills/jira-integration/MEMORY.md` 中的模板
+- 确保所有必填字段都已提供
+
 ---
 
 ## 下一步
 
-- 阅读 [Skill 详细文档](../skills/gitnexus-setup/README.md)
+- 阅读 [GitNexus Setup Skill 文档](../skills/gitnexus-setup/README.md)
+- 阅读 [Jira 集成 Skill 文档](../skills/jira-integration/README.md)
 - 了解 [贡献指南](../CONTRIBUTING.md)
 - 探索 [GitNexus 官方文档](https://github.com/abhigyanpatwari/GitNexus)

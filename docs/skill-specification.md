@@ -8,7 +8,7 @@ Skill 是一种 AI 可识别的自动化脚本集合，通过标准化的 `SKILL
 
 ## Skill 目录结构
 
-每个 Skill 必须遵循以下目录结构：
+### Bash 脚本结构
 
 ```
 skills/<skill-name>/
@@ -17,6 +17,20 @@ skills/<skill-name>/
 ├── Reference.md          # 可选：技术参考资料
 └── scripts/
     └── <skill-name>.sh   # 必须：核心执行脚本
+```
+
+### Python 脚本结构
+
+```
+skills/<skill-name>/
+├── SKILL.md              # 必须：AI 调用入口定义
+├── README.md             # 必须：用户说明文档
+├── Reference.md          # 可选：技术参考资料
+├── MEMORY.md             # 可选：记忆系统（如 Jira 集成）
+└── scripts_py/           # 脚本目录
+    ├── main.py           # 核心执行脚本
+    ├── utils.py          # 工具函数
+    └── other_modules.py  # 其他模块
 ```
 
 ## 文件规范
@@ -282,8 +296,9 @@ check_command node
 
 参考现有 Skill：
 
-- [gitnexus-setup](../skills/gitnexus-setup/) - 环境初始化
-- [gitnexus-wiki](../skills/gitnexus-wiki/) - Wiki 生成
+- [gitnexus-setup](../skills/gitnexus-setup/) - 环境初始化（Bash 脚本）
+- [gitnexus-wiki](../skills/gitnexus-wiki/) - Wiki 生成（Bash 脚本）
+- [jira-integration](../skills/jira-integration/) - Jira 集成（Python 脚本）
 
 ## 提交检查清单
 

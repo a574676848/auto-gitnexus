@@ -80,12 +80,25 @@ auto-gitnexus/
 │   │   ├── Reference.md      # 参考资料
 │   │   └── scripts/
 │   │       └── gitnexus-setup.sh
-│   └── gitnexus-wiki/        # GitNexus Wiki 生成器 Skill
-│       ├── SKILL.md
-│       ├── README.md
-│       ├── Reference.md
-│       └── scripts/
-│           └── gitnexus-wiki.sh
+│   ├── gitnexus-wiki/        # GitNexus Wiki 生成器 Skill
+│   │   ├── SKILL.md
+│   │   ├── README.md
+│   │   ├── Reference.md
+│   │   └── scripts/
+│   │       └── gitnexus-wiki.sh
+│   └── jira-integration/     # Jira 集成 Skill
+│       ├── SKILL.md          # Skill 定义文件
+│       ├── MEMORY.md         # 多层认知记忆系统
+│       └── scripts_py/       # Python 脚本目录
+│           ├── auth.py       # 身份认证
+│           ├── create.py     # 创建工单
+│           ├── delete.py     # 删除工单
+│           ├── get_issue.py  # 获取工单详情
+│           ├── schema.py     # 获取工单 schema
+│           ├── search.py     # 查询工单
+│           ├── transition.py # 工单状态流转
+│           ├── update.py     # 更新工单
+│           └── utils.py      # 工具函数
 ├── docs/                      # 项目文档
 ├── .github/                   # GitHub 配置
 │   └── workflows/            # CI/CD 工作流
@@ -126,8 +139,20 @@ skills/<skill-name>/
 ├── SKILL.md          # 必须：AI 调用入口定义
 ├── README.md         # 必须：用户说明文档
 ├── Reference.md      # 可选：技术参考资料
-└── scripts/
-    └── <skill-name>.sh   # 必须：核心执行脚本
+└── scripts/          # 脚本目录（Bash 脚本）
+    └── <skill-name>.sh   # 核心执行脚本
+
+# 或 Python 脚本结构
+
+```
+skills/<skill-name>/
+├── SKILL.md          # 必须：AI 调用入口定义
+├── README.md         # 必须：用户说明文档
+├── Reference.md      # 可选：技术参考资料
+├── MEMORY.md         # 可选：记忆系统（如 Jira 集成）
+└── scripts_py/       # 脚本目录（Python 脚本）
+    ├── main.py       # 核心执行脚本
+    └── utils.py      # 工具函数
 ```
 
 ### SKILL.md 规范

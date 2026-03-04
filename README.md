@@ -52,6 +52,15 @@ Skill 是一种 AI 可识别的自动化脚本集合，通过标准化的 `SKILL
 - **异步执行**：后台生成文档，不阻塞用户操作
 - **多模型支持**：支持 OpenAI、Anthropic 及兼容接口
 
+### 📋 Jira 集成 (`jira-integration`)
+
+- **零依赖**：纯 Python 3 实现，无需额外安装依赖
+- **Jira Server 7.5.2 优化**：专门适配 v2 API
+- **完整工单操作**：支持查询、创建、更新、流转和删除工单
+- **智能打单**：两阶段机制，先获取 schema 再提交
+- **多层认知记忆**：内置 MEMORY.md 系统，持续学习和进化
+- **安全认证**：支持密码和 API Token 认证
+
 ---
 
 ## 🚀 快速开始
@@ -59,8 +68,9 @@ Skill 是一种 AI 可识别的自动化脚本集合，通过标准化的 `SKILL
 ### 前置要求
 
 - Git >= 2.0
-- Node.js >= 16
-- npm >= 8
+- Node.js >= 16 (仅 GitNexus 相关技能需要)
+- npm >= 8 (仅 GitNexus 相关技能需要)
+- Python >= 3.6 (仅 Jira 集成技能需要)
 
 ### 安装
 
@@ -85,6 +95,14 @@ chmod +x skills/*/scripts/*.sh
 
 > "使用 GitNexus 帮我生成项目架构 Wiki"
 
+或
+
+> "帮我在 Jira 创建一个工单"
+
+或
+
+> "查询 Jira 中我的待办工单"
+
 AI 助手将自动识别并执行相应的 Skill。
 
 #### 方式二：手动执行
@@ -95,6 +113,10 @@ AI 助手将自动识别并执行相应的 Skill。
 
 # 生成 Wiki
 ./skills/gitnexus-wiki/scripts/gitnexus-wiki.sh
+
+# Jira 集成（Python 脚本）
+python skills/jira-integration/scripts_py/auth.py --domain "<Jira域名>" --user "<账号>" --token "<密码/Token>"
+python skills/jira-integration/scripts_py/search.py --jql "assignee = currentUser() AND status = 'Open'"
 ```
 
 ---
@@ -105,6 +127,7 @@ AI 助手将自动识别并执行相应的 Skill。
 |-------|------|-----------|
 | [gitnexus-setup](skills/gitnexus-setup/) | 自动化安装、配置 GitNexus | "初始化 GitNexus", "配置 GitNexus", "启动 GitNexus" |
 | [gitnexus-wiki](skills/gitnexus-wiki/) | 生成项目架构 Wiki | "生成 Wiki", "创建文档", "写项目文档" |
+| [jira-integration](skills/jira-integration/) | Jira 工单管理集成 | "Jira", "工单", "创建工单", "查询工单", "更新工单" |
 
 ---
 
@@ -119,12 +142,25 @@ auto-gitnexus/
 │   │   ├── Reference.md      # 参考资料
 │   │   └── scripts/
 │   │       └── gitnexus-setup.sh
-│   └── gitnexus-wiki/        # GitNexus Wiki 生成器 Skill
-│       ├── SKILL.md
-│       ├── README.md
-│       ├── Reference.md
-│       └── scripts/
-│           └── gitnexus-wiki.sh
+│   ├── gitnexus-wiki/        # GitNexus Wiki 生成器 Skill
+│   │   ├── SKILL.md
+│   │   ├── README.md
+│   │   ├── Reference.md
+│   │   └── scripts/
+│   │       └── gitnexus-wiki.sh
+│   └── jira-integration/     # Jira 集成 Skill
+│       ├── SKILL.md          # Skill 定义文件
+│       ├── MEMORY.md         # 多层认知记忆系统
+│       └── scripts_py/       # Python 脚本目录
+│           ├── auth.py       # 身份认证
+│           ├── create.py     # 创建工单
+│           ├── delete.py     # 删除工单
+│           ├── get_issue.py  # 获取工单详情
+│           ├── schema.py     # 获取工单 schema
+│           ├── search.py     # 查询工单
+│           ├── transition.py # 工单状态流转
+│           ├── update.py     # 更新工单
+│           └── utils.py      # 工具函数
 ├── docs/                      # 项目文档
 ├── .github/                   # GitHub 配置
 │   └── workflows/            # CI/CD 工作流
