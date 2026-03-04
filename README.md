@@ -1,7 +1,7 @@
-# Auto-GitNexus
+# Auto-devnexus
 
 <p align="center">
-  <strong>🤖 AI 驱动的 GitNexus 自动化 Skill 集合</strong>
+  <strong>🤖 AI 驱动的 devnexus 自动化 Skill 集合</strong>
 </p>
 
 <p align="center">
@@ -17,11 +17,11 @@
 
 ## 📖 简介
 
-Auto-GitNexus 是一套专为 Claude Code、OpenCode 等支持 MCP 的 AI 编程助手设计的 Skill 集合。它提供了全自动化的 [GitNexus](https://github.com/abhigyanpatwari/GitNexus) 部署、管理和调度能力，让你的 AI 助手能够无缝集成代码图谱检索功能。
+Auto-devnexus 是一套专为 Claude Code、OpenCode 等支持 MCP 的 AI 编程助手设计的 Skill 集合。它提供了全自动化的 [devnexus](https://github.com/abhigyanpatwari/devnexus) 部署、管理和调度能力，让你的 AI 助手能够无缝集成代码图谱检索功能。
 
-### 什么是 GitNexus？
+### 什么是 devnexus？
 
-GitNexus 是一个强大的代码库分析工具，能够：
+devnexus 是一个强大的代码库分析工具，能够：
 - 🔍 解析 Git 仓库，生成 AST 与调用图谱
 - 🌐 提供本地 HTTP 图谱微服务
 - 📝 调用 LLM 生成项目架构 Wiki
@@ -35,19 +35,19 @@ Skill 是一种 AI 可识别的自动化脚本集合，通过标准化的 `SKILL
 
 ## ✨ 功能特性
 
-### 🔧 GitNexus 环境初始化 (`gitnexus-setup`)
+### 🔧 devnexus 环境初始化 (`devnexus-setup`)
 
-- **自动全局安装**：检测并安装 npm 包 `gitnexus`
-- **异步图谱构建**：后台运行 `gitnexus analyze` 生成 AST 索引
+- **自动全局安装**：检测并安装 npm 包 `devnexus`
+- **异步图谱构建**：后台运行 `devnexus analyze` 生成 AST 索引
 - **MCP 配置注入**：自动注册图谱检索工具到 AI 助手
 - **自动同步钩子**：挂载 `post-commit` 钩子实现代码提交后自动更新
 - **守护进程管理**：进程防抖（防冲突）、全异步非阻塞执行
 - **定制化高位端口**：使用 `54321` 端口避免冲突
 
-### 📝 GitNexus Wiki 生成器 (`gitnexus-wiki`)
+### 📝 devnexus Wiki 生成器 (`devnexus-wiki`)
 
-- **智能层级读取**：优先读取 `~/.gitnexus/config.json` → OpenCode 配置 → Claude Code 配置
-- **全局持久化**：新配置保存到 `~/.gitnexus/config.json`，后续使用无需重复输入
+- **智能层级读取**：优先读取 `~/.devnexus/config.json` → OpenCode 配置 → Claude Code 配置
+- **全局持久化**：新配置保存到 `~/.devnexus/config.json`，后续使用无需重复输入
 - **进程防抖**：杀掉旧的 wiki 进程，避免资源冲突
 - **异步执行**：后台生成文档，不阻塞用户操作
 - **多模型支持**：支持 OpenAI、Anthropic 及兼容接口
@@ -68,16 +68,16 @@ Skill 是一种 AI 可识别的自动化脚本集合，通过标准化的 `SKILL
 ### 前置要求
 
 - Git >= 2.0
-- Node.js >= 16 (仅 GitNexus 相关技能需要)
-- npm >= 8 (仅 GitNexus 相关技能需要)
+- Node.js >= 16 (仅 devnexus 相关技能需要)
+- npm >= 8 (仅 devnexus 相关技能需要)
 - Python >= 3.6 (仅 Jira 集成技能需要)
 
 ### 安装
 
 ```bash
 # 克隆仓库
-git clone git@github.com:a574676848/auto-gitnexus.git
-cd auto-gitnexus
+git clone git@github.com:a574676848/auto-devnexus.git
+cd auto-devnexus
 
 # 确保脚本可执行
 chmod +x skills/*/scripts/*.sh
@@ -89,11 +89,11 @@ chmod +x skills/*/scripts/*.sh
 
 对支持 MCP 的 AI 助手说：
 
-> "初始化 GitNexus 环境"
+> "初始化 devnexus 环境"
 
 或
 
-> "使用 GitNexus 帮我生成项目架构 Wiki"
+> "使用 devnexus 帮我生成项目架构 Wiki"
 
 或
 
@@ -108,11 +108,11 @@ AI 助手将自动识别并执行相应的 Skill。
 #### 方式二：手动执行
 
 ```bash
-# 初始化 GitNexus
-./skills/gitnexus-setup/scripts/gitnexus-setup.sh
+# 初始化 devnexus
+./skills/devnexus-setup/scripts/devnexus-setup.sh
 
 # 生成 Wiki
-./skills/gitnexus-wiki/scripts/gitnexus-wiki.sh
+./skills/devnexus-wiki/scripts/devnexus-wiki.sh
 
 # Jira 集成（Python 脚本）
 python skills/jira-integration/scripts_py/auth.py --domain "<Jira域名>" --user "<账号>" --token "<密码/Token>"
@@ -125,8 +125,8 @@ python skills/jira-integration/scripts_py/search.py --jql "assignee = currentUse
 
 | Skill | 描述 | 触发关键词 |
 |-------|------|-----------|
-| [gitnexus-setup](skills/gitnexus-setup/) | 自动化安装、配置 GitNexus | "初始化 GitNexus", "配置 GitNexus", "启动 GitNexus" |
-| [gitnexus-wiki](skills/gitnexus-wiki/) | 生成项目架构 Wiki | "生成 Wiki", "创建文档", "写项目文档" |
+| [devnexus-setup](skills/devnexus-setup/) | 自动化安装、配置 devnexus | "初始化 devnexus", "配置 devnexus", "启动 devnexus" |
+| [devnexus-wiki](skills/devnexus-wiki/) | 生成项目架构 Wiki | "生成 Wiki", "创建文档", "写项目文档" |
 | [jira-integration](skills/jira-integration/) | Jira 工单管理集成 | "Jira", "工单", "创建工单", "查询工单", "更新工单" |
 
 ---
@@ -134,20 +134,20 @@ python skills/jira-integration/scripts_py/search.py --jql "assignee = currentUse
 ## 🏗️ 项目结构
 
 ```
-auto-gitnexus/
+auto-devnexus/
 ├── skills/                    # Skill 集合目录
-│   ├── gitnexus-setup/       # GitNexus 环境初始化 Skill
+│   ├── devnexus-setup/       # devnexus 环境初始化 Skill
 │   │   ├── SKILL.md          # Skill 定义文件（AI 调用入口）
 │   │   ├── README.md         # Skill 说明文档
 │   │   ├── Reference.md      # 参考资料
 │   │   └── scripts/
-│   │       └── gitnexus-setup.sh
-│   ├── gitnexus-wiki/        # GitNexus Wiki 生成器 Skill
+│   │       └── devnexus-setup.sh
+│   ├── devnexus-wiki/        # devnexus Wiki 生成器 Skill
 │   │   ├── SKILL.md
 │   │   ├── README.md
 │   │   ├── Reference.md
 │   │   └── scripts/
-│   │       └── gitnexus-wiki.sh
+│   │       └── devnexus-wiki.sh
 │   └── jira-integration/     # Jira 集成 Skill
 │       ├── SKILL.md          # Skill 定义文件
 │       ├── MEMORY.md         # 多层认知记忆系统
@@ -206,7 +206,7 @@ auto-gitnexus/
 
 ## 🙏 致谢
 
-- [GitNexus](https://github.com/abhigyanpatwari/GitNexus) - 提供强大的代码图谱分析能力
+- [devnexus](https://github.com/abhigyanpatwari/devnexus) - 提供强大的代码图谱分析能力
 - [Claude Code](https://github.com/anthropics/claude-code) - AI 编程助手
 - [OpenCode](https://github.com/opencode-ai/opencode) - 开源 AI 编程助手
 
