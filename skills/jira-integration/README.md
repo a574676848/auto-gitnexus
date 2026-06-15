@@ -76,6 +76,35 @@ python scripts_py/transition.py --issue "TEST-123" --id "21"
 python scripts_py/delete.py --issue "TEST-123"
 ```
 
+#### 子任务管理 🆕
+
+```bash
+# 创建子任务
+python scripts_py/subtask.py --action create --parent "TEST-123" --payload '{"fields":{"summary":"实现登录功能","assignee":{"name":"zhangbaogen"}}}' --workdir "<工作空间路径>"
+
+# 更新子任务
+python scripts_py/subtask.py --action update --issue "TEST-124" --payload '{"fields":{"summary":"更新后的标题"}}' --workdir "<工作空间路径>"
+
+# 删除子任务
+python scripts_py/subtask.py --action delete --issue "TEST-124" --workdir "<工作空间路径>"
+```
+
+#### 评论管理 🆕
+
+```bash
+# 查看工单评论
+python scripts_py/comment.py --action list --issue "TEST-123" --workdir "<工作空间路径>"
+
+# 添加评论
+python scripts_py/comment.py --action add --issue "TEST-123" --body "技术方案已评审完成" --workdir "<工作空间路径>"
+
+# 更新评论
+python scripts_py/comment.py --action update --issue "TEST-123" --comment-id "12345" --body "更新后的评论内容" --workdir "<工作空间路径>"
+
+# 删除评论
+python scripts_py/comment.py --action delete --issue "TEST-123" --comment-id "12345" --workdir "<工作空间路径>"
+```
+
 #### 生成项目复盘报告
 
 ```bash
@@ -118,6 +147,9 @@ python scripts_py/review_generate.py --issue "EXEPD-205110" --workdir "<用户�
 | `update.py` | 更新工单 | `--issue <工单KEY> --payload <JSON  payload>` |
 | `transition.py` | 工单状态流转 | `--issue <工单KEY> --list` 或 `--id <流转ID>` |
 | `delete.py` | 删除工单 | `--issue <工单KEY>` |
+| `subtask.py` | 子任务管理 🆕 | `--action <create\|update\|delete> [--parent\|--issue] --payload <JSON>` |
+| `comment.py` | 评论管理 🆕 | `--action <list\|add\|update\|delete> --issue <KEY> [--body\|--comment-id]` |
+| `worklog.py` | 工时查询 | `--issue <KEY>` 或 `--user <用户名> [--from <日期> --to <日期>]` |
 | `review_export.py` | 导出复盘数据包 | `--issue <工单KEY> --workdir <路径>` |
 | `review_refs.py` | 收集参考资料 | `--issue <工单KEY> [--file <路径>] [--url <URL>] --workdir <路径>` |
 | `review_analyze.py` | 分析复盘数据 | `--issue <工单KEY> [--role <姓名=角色>] --workdir <路径>` |

@@ -63,7 +63,32 @@ description: 零依赖的 Jira CLI 辅助技能 (基于 Python 3)，专为 Jira 
 - **脚本**：`python scripts_py/delete.py --issue "<KEY>" --workdir "<用户工作空间 tmp 路径>"`
 - **风控**：在执行前，**必须**显式反问用户："你确定要永久删除工单 {KEY} 吗？此操作不可撤销。"。得到肯定答复（如"是的"、"确定"）后方可调用。
 
-#### 意图 5：工时查询 (Worklog Query) 🆕
+#### 意图 5：子任务管理 (Subtask Management) 🆕
+- **脚本**：`python scripts_py/subtask.py --action <create|update|delete> --workdir "<用户工作空间 tmp 路径>" [其他参数]`
+- **三种操作模式**：
+  1. **创建子任务**：`--action create --parent "<父工单KEY>" --payload '{"fields":{...}}'`
+  2. **更新子任务**：`--action update --issue "<子任务KEY>" --payload '{"fields":{...}}'`
+  3. **删除子任务**：`--action delete --issue "<子任务KEY>"`
+- **剧本**：
+  - "给 EXEPD-222815 创建一个子任务" → `--action create --parent "EXEPD-222815" --payload '{"fields":{"summary":"子任务标题","assignee":{"name":"zhangbaogen"}}}'`
+  - "更新子任务 EXEPD-222849" → `--action update --issue "EXEPD-222849" --payload '{"fields":{"summary":"新标题"}}'`
+  - "删除子任务 EXEPD-222849" → `--action delete --issue "EXEPD-222849"`
+- **💡 提示**：创建子任务时 payload 无需包含 parent 字段（脚本自动添加），issuetype 默认为子任务类型
+
+#### 意图 6：评论管理 (Comment Management) 🆕
+- **脚本**：`python scripts_py/comment.py --action <list|add|update|delete> --issue "<KEY>" --workdir "<用户工作空间 tmp 路径>" [其他参数]`
+- **四种操作模式**：
+  1. **查看评论**：`--action list --issue "<KEY>"`
+  2. **添加评论**：`--action add --issue "<KEY>" --body "评论内容"`
+  3. **更新评论**：`--action update --issue "<KEY>" --comment-id "<评论ID>" --body "新内容"`
+  4. **删除评论**：`--action delete --issue "<KEY>" --comment-id "<评论ID>"`
+- **剧本**：
+  - "查看 EXEPD-222815 的所有评论" → `--action list --issue "EXEPD-222815"`
+  - "给工单添加评论" → `--action add --issue "EXEPD-222815" --body "技术方案已评审完成"`
+  - "修改评论" → `--action update --issue "EXEPD-222815" --comment-id "12345" --body "更新后的内容"`
+  - "删除评论" → `--action delete --issue "EXEPD-222815" --comment-id "12345"`
+
+#### 意图 7：工时查询 (Worklog Query) 🆕
 - **脚本**：`python scripts_py/worklog.py --workdir "<用户工作空间 tmp 路径>" [可选参数]`
 - **四种查询模式**：
   1. **按用户查询**（默认最近 7 天）：`--user "<username>"`
