@@ -15,6 +15,9 @@ _global_workdir = None
 # Jira 7.5.2 使用 rest/api/2
 API_VERSION = "2"
 
+# 凭证文件名常量
+CREDENTIALS_FILENAME = ".jira_credentials.json"
+
 def set_workdir(workdir: str):
     global _global_workdir
     _global_workdir = workdir
@@ -22,8 +25,8 @@ def set_workdir(workdir: str):
 def get_credentials_file() -> str:
     """获取凭证文件的保存路径。如果设置了 workdir，则保存在 workdir 目录下。"""
     if _global_workdir:
-        return os.path.join(_global_workdir, '.jira_credentials.json')
-    return os.path.expanduser('~/.jira_credentials.json')
+        return os.path.join(_global_workdir, CREDENTIALS_FILENAME)
+    return os.path.expanduser(f'~/{CREDENTIALS_FILENAME}')
 
 def validate_workdir(workdir: str):
     """验证工作目录。"""
@@ -109,26 +112,40 @@ def log_to_human(message: str, msg_type: str = 'INFO'):
     sys.stderr.flush()
 
 def get_credentials():
-    """从本地文件或环境变量获取凭证和域名"""
+    """从本地文件或环境变量获取凭证和域名（递进式：workdir → 用户级目录）"""
     user = os.environ.get('JIRA_USER')
     token = os.environ.get('JIRA_API_TOKEN')
     domain = os.environ.get('JIRA_DOMAIN')
-    
+
+    # 优先查找 workdir 下的凭证文件
     creds_file = get_credentials_file()
-    
-    # 优先使用文件凭证
+
     if os.path.exists(creds_file):
         try:
             with open(creds_file, 'r', encoding='utf-8') as f:
                 creds = json.load(f)
                 return (
-                    creds.get('user', user), 
-                    creds.get('token', token), 
+                    creds.get('user', user),
+                    creds.get('token', token),
                     creds.get('domain', domain)
                 )
         except Exception as e:
             log_to_human(f"读取凭证文件失败: {e}", "WARNING")
-            
+
+    # 如果 workdir 下不存在，回退到用户级目录
+    user_level_creds = os.path.expanduser(f'~/{CREDENTIALS_FILENAME}')
+    if os.path.exists(user_level_creds):
+        try:
+            with open(user_level_creds, 'r', encoding='utf-8') as f:
+                creds = json.load(f)
+                return (
+                    creds.get('user', user),
+                    creds.get('token', token),
+                    creds.get('domain', domain)
+                )
+        except Exception as e:
+            log_to_human(f"读取用户级凭证文件失败: {e}", "WARNING")
+
     return user, token, domain
 
 def check_auth():
@@ -184,12 +201,12 @@ def api_request(endpoint: str, method: str = 'GET', data: Optional[dict] = None,
     """
     零依赖的基础 HTTP 请求封装 (urllib)
     """
-    user, token, domain = check_auth()
-    
+    user, token, _ = check_auth()
+
     # 自动修正路径：如果是以 /rest/api 开头则保留，否则自动加上版本号前缀
     if not endpoint.startswith('/rest/'):
         endpoint = f"/rest/api/{API_VERSION}/{endpoint.lstrip('/')}"
-    
+
     base_url = get_base_url()
     url = endpoint if endpoint.startswith('http') else f"{base_url}{endpoint}"
     

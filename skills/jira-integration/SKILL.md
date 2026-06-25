@@ -20,15 +20,18 @@ description: 零依赖的 Jira CLI 辅助技能 (基于 Python 3)，专为 Jira 
 2. 如果返回 `success: true`，提取其 `endpoint`（即 Jira 域名）、`username` 和 `accessToken`，直接代入下方配置命令。
 3. 如果返回 `success: false`（未配置集成），则**继续第二级**。
 
-**第二级：本地缓存查找**
-- 由于我们采用了工作空间隔离机制，这一级其实已经在 Python 脚本底层实现了。只要脚本在当前 `--workdir` 下找到过配置文件就会自动使用。如果底层依然报 `MISSING_CREDENTIALS`，说明当前目录无缓存，直接**进入第三级**。
+**第二级：递进式本地缓存查找**
+- 脚本会自动按以下顺序查找凭证文件：
+  1. **项目级**：`<workdir>/.jira_credentials.json`（优先，支持多项目凭证隔离）
+  2. **用户级**：`~/.jira_credentials.json`（回退，全局共享）
+- 只要任一路径存在有效凭证，即可直接使用。如果底层依然报 `MISSING_CREDENTIALS`，说明两级都未找到，直接**进入第三级**。
 
 **第三级：用户手动提供**
 1. 停止后续操作，主动询问用户："我尝试了系统中已绑定的项目管理集成配置，但暂未找到对应的 Jira 凭证。请提供你的 **Jira 域名 (Host)**、**账号 (Username)** 和 **密码/API Token** 以便我连接系统。"
 2. 收到信息后（无论来自第一级还是第三级），执行配置脚本：
    `python scripts_py/auth.py --domain "<Jira 域名>" --user "<账号>" --token "<密码/Token>" --workdir "<用户工作空间 tmp 路径>"`
 3. 配置成功后，重新执行用户原本请求的操作。
-- **⚠️ 关键提示：凭证隔离**：必须始终传入 `--workdir` 以确保凭证存储在当前用户的隔离工作空间中（而非全局环境）。 
+- **⚠️ 智能写入策略**：若用户级凭证（`~/.jira_credentials.json`）已存在且有效，`auth.py` 会自动跳过写入 workdir，直接复用全局凭证。仅在用户级凭证不存在或损坏时，才会写入到 `<workdir>/.jira_credentials.json`。 
 
 ### 第二步：识别意图并调度工具 (Dispatcher)
 
@@ -133,7 +136,7 @@ description: 零依赖的 Jira CLI 辅助技能 (基于 Python 3)，专为 Jira 
 ## 大模型避坑与自愈指南 (LLM Gotchas & Auto-Healing)
 
 ### 0. 记忆库分级读取策略
-`MEMORY.md` 是你的渐进式大脑。**注意：`MEMORY.md` 是全局统一的资源知识库，不会受到 `--workdir` 的隔离影响。**
+`MEMORY.md` 是你的渐进式大脑。**注意：`MEMORY.md` 是全局统一的资源知识库。凭证系统支持递进式查找（项目级 → 用户级），确保跨项目复用与隔离并存。**
 - **创建/更新前**：必读 §1 别名映射、§3 JSON 模板、§4 项目快照。
 - **遇到 400 错后**：必读 §2 踩坑复盘，寻找 7.5.2 特有的字段报错解法。
 

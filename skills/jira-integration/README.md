@@ -23,40 +23,51 @@ Jira 集成技能是一个零依赖的 Jira CLI 辅助工具，专为 Jira Serve
 
 ### 初始化配置
 
-首次使用时，需要配置 Jira 连接信息：
+首次使用时，需要配置 Jira 连接信息。凭证支持**递进式查找**：
+
+1. **项目级**：`<workdir>/.jira_credentials.json`（优先，支持多项目凭证隔离）
+2. **用户级**：`~/.jira_credentials.json`（回退，全局共享）
+
+配置示例：
 
 ```bash
-# 配置 Jira 连接信息
-python scripts_py/auth.py --domain "https://your-jira-domain.com" --user "your-username" --token "your-password-or-api-token"
+# 配置 Jira 连接信息（需要指定 workdir）
+python scripts_py/auth.py --domain "https://your-jira-domain.com" --user "your-username" --token "your-password-or-api-token" --workdir "<工作空间路径>"
 ```
 
+**智能写入策略**：
+- 如果用户级凭证（`~/.jira_credentials.json`）已存在且有效，`auth.py` 会自动跳过写入 workdir，直接复用全局凭证。
+- 仅在用户级凭证不存在或损坏时，才会写入到 `<workdir>/.jira_credentials.json`。
+
 ### 基本使用
+
+> **⚠️ 重要**：所有脚本调用都需要传入 `--workdir` 参数以支持凭证递进式查找。
 
 #### 查询工单
 
 ```bash
 # 使用 JQL 查询工单
-python scripts_py/search.py --jql "assignee = currentUser() AND status = 'Open'"
+python scripts_py/search.py --jql "assignee = currentUser() AND status = 'Open'" --workdir "<工作空间路径>"
 
 # 获取单个工单详情
-python scripts_py/get_issue.py --issue "TEST-123"
+python scripts_py/get_issue.py --issue "TEST-123" --workdir "<工作空间路径>"
 ```
 
 #### 创建工单
 
 ```bash
 # 先获取项目和工单类型的 schema
-python scripts_py/schema.py --project "TEST" --issuetype "Bug"
+python scripts_py/schema.py --project "TEST" --issuetype "Bug" --workdir "<工作空间路径>"
 
 # 然后创建工单
-python scripts_py/create.py --payload '{"fields":{"project":{"key":"TEST"},"summary":"测试工单","description":"这是一个测试工单","issuetype":{"name":"Bug"},"assignee":{"name":"your-username"}}}'
+python scripts_py/create.py --payload '{"fields":{"project":{"key":"TEST"},"summary":"测试工单","description":"这是一个测试工单","issuetype":{"name":"Bug"},"assignee":{"name":"your-username"}}}' --workdir "<工作空间路径>"
 ```
 
 #### 更新工单
 
 ```bash
 # 更新工单字段
-python scripts_py/update.py --issue "TEST-123" --payload '{"fields":{"summary":"更新后的工单标题","description":"更新后的工单描述"}}'
+python scripts_py/update.py --issue "TEST-123" --payload '{"fields":{"summary":"更新后的工单标题","description":"更新后的工单描述"}}' --workdir "<工作空间路径>"
 ```
 
 #### 工单状态流转
