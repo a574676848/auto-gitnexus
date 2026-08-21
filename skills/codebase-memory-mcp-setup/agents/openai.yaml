@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codebase Memory MCP Setup"
+  short_description: "跨平台安装、增强并维护 Codebase Memory MCP"
+  default_prompt: "Use $codebase-memory-mcp-setup to install and configure Codebase Memory MCP safely."
