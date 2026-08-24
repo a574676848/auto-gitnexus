@@ -12,11 +12,12 @@ description: "跨平台安装、迁移、配置、增强和维护 Codebase Memor
 1. 只从官方仓库 `https://github.com/DeusData/codebase-memory-mcp` 或其 GitHub Releases 获取安装器和二进制。
 2. 先识别操作系统、Shell、CPU 架构、目标客户端和现有安装，再选择对应流程。Windows 优先 PowerShell 7；macOS/Linux 使用 POSIX shell。
 3. 把安装目录、缓存目录和 runtime 父目录视为三个独立参数。不得把当前机器的盘符、用户名、SID 或项目路径写入 Skill、文档或模板。
-4. 修改 Agent 配置前先备份；首次安装先用官方安装器的 `--skip-config` 安装二进制，再用原生命令 `install --skip-binary --dry-run --clients=claude,codex` 预览精确变更。
-5. 不删除或放宽 Codex 沙箱 ACL，不绕过 CBM 的私有目录校验。出现权限错误时修复目标目录所有权/DACL/ACL，或换到当前用户独占的目录。
-6. 不承诺模型每次都调用 MCP。主导模式依靠 MCP `initialize.instructions`、Skill、Agent profile、项目指令和 Hooks 叠加提高调用优先级；最终工具选择仍由 Agent 决定。
-7. `auto_index=true` 只控制首次连接时自动建索引，不等于强制调用 MCP。`auto_watch=true` 只维护已索引、已连接会话中的 Git 项目。
-8. 对外部下载、配置写入、索引创建、更新、卸载等有状态操作，必须符合用户授权范围。未经授权不得批量扫描或索引用户未指定的目录。
+4. 目录变量必须持久化到当前用户环境：Windows 写入 User scope，POSIX 写入用户实际使用的 shell 启动文件。只设置当前进程的 `$env:` 或 `export` 不算完成；保留平台默认 runtime 时不设置或清除用户级 `CBM_RUNTIME_DIR`。
+5. 修改 Agent 配置前先备份；首次安装先用官方安装器的 `--skip-config` 安装二进制，再用原生命令 `install --skip-binary --dry-run --clients=claude,codex` 预览精确变更。
+6. 不删除或放宽 Codex 沙箱 ACL，不绕过 CBM 的私有目录校验。出现权限错误时修复目标目录所有权/DACL/ACL，或换到当前用户独占的目录。
+7. 不承诺模型每次都调用 MCP。主导模式依靠 MCP `initialize.instructions`、Skill、Agent profile、项目指令和 Hooks 叠加提高调用优先级；最终工具选择仍由 Agent 决定。
+8. `auto_index=true` 只控制首次连接时自动建索引，不等于强制调用 MCP。`auto_watch=true` 只维护已索引、已连接会话中的 Git 项目。
+9. 对外部下载、配置写入、索引创建、更新、卸载等有状态操作，必须符合用户授权范围。未经授权不得批量扫描或索引用户未指定的目录。
 
 ## 执行路由
 
@@ -28,7 +29,7 @@ description: "跨平台安装、迁移、配置、增强和维护 Codebase Memor
 2. 检查现有二进制、版本、进程、配置和目录权限。
 3. 备份目标配置，下载并检查官方安装器。
 4. 安装二进制，运行配置 dry-run，再只配置用户指定的客户端。
-5. 持久化环境变量，开启 `auto_index`，验证 MCP、Hook 和索引状态。
+5. 将目录变量持久化到当前用户环境，重新启动宿主进程，开启 `auto_index`，验证 MCP、Hook 和索引状态。
 
 ### 更新、自动监听或索引健康
 
@@ -53,8 +54,10 @@ description: "跨平台安装、迁移、配置、增强和维护 Codebase Memor
 - `codebase-memory-mcp --version` 可运行，且命令来自预期安装目录。
 - `codebase-memory-mcp config get auto_index` 返回 `true`。
 - `codebase-memory-mcp config get auto_watch` 返回预期值；建议显式设为 `true`。
-- Codex 和 Claude Code 的实际配置中存在 CBM MCP，且所有启动方式都能获得一致的 `CBM_CACHE_DIR` 与 `CBM_RUNTIME_DIR`。
-- `codebase-memory-mcp cli list_projects` 可运行；指定项目时，`index_status` 和 `check_index_coverage` 能返回可信结果。
+- Codex 和 Claude Code 的实际配置中存在 CBM MCP。
+- 当前用户环境可读取预期的 `CBM_CACHE_DIR`；自定义 runtime 时也能读取预期的 `CBM_RUNTIME_DIR`，保留默认 runtime 时用户环境中不存在旧值。
+- 在未手工注入会话变量的新终端中，`codebase-memory-mcp cli list_projects` 可运行；重新启动后的主 Agent、Scout/Verify/Auditor profile 与手动 CLI 获得一致目录配置。
+- 指定项目时，`index_status` 和 `check_index_coverage` 能返回可信结果。
 - Agent 重启后能看到 MCP 工具；Codex 非托管 Hooks 已在 `/hooks` 中完成用户信任。
 - 没有将本机专属路径、凭据、SID 或隐私信息写入 Skill 仓库。
 

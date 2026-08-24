@@ -92,6 +92,8 @@ Remove-Item -LiteralPath $InstallerFile
 
 ## 4. 持久化目录配置
 
+只设置当前 Shell 的 `$env:` 或 `export` 只能保证本次安装命令可用，不能覆盖之后由 GUI、Codex 或 Agent profile 启动的进程。安装或迁移必须完成当前用户级持久化；系统级环境变量不属于默认方案。
+
 ### POSIX shell
 
 在用户实际使用的 shell 启动文件中设置，并重启所有 Agent 会话：
@@ -106,7 +108,7 @@ export CBM_RUNTIME_DIR="<private-runtime-parent>"
 
 ### Windows
 
-当前会话：
+先为当前安装会话设置：
 
 ```powershell
 $env:CBM_CACHE_DIR = $ConfiguredCacheDir
@@ -115,7 +117,7 @@ if ($ConfiguredRuntimeDir) {
 }
 ```
 
-持久化到当前用户环境：
+必须持久化到当前用户（`User`）环境，不能只保留上面的 `$env:`：
 
 ```powershell
 [Environment]::SetEnvironmentVariable('CBM_CACHE_DIR', $ConfiguredCacheDir, 'User')
@@ -130,7 +132,18 @@ if ($ConfiguredRuntimeDir) {
 [Environment]::SetEnvironmentVariable('CBM_RUNTIME_DIR', $null, 'User')
 ```
 
-环境变化不会注入已运行进程。关闭所有 daemon-backed Agent 会话后重新启动。
+写入后直接读取 User scope 验证；不要用当前进程的 `$env:` 代替此项验收：
+
+```powershell
+$PersistedCacheDir = [Environment]::GetEnvironmentVariable('CBM_CACHE_DIR', 'User')
+$PersistedRuntimeDir = [Environment]::GetEnvironmentVariable('CBM_RUNTIME_DIR', 'User')
+$PersistedCacheDir
+$PersistedRuntimeDir
+```
+
+`$PersistedCacheDir` 必须与已确认的 cache 目录一致。自定义 runtime 时 `$PersistedRuntimeDir` 必须一致；保留平台默认 runtime 时该值应为空。
+
+环境变化不会注入已运行进程。必须完全退出并重新启动 Codex、Claude Code、PowerShell/Windows Terminal、IDE 及其他宿主；仅关闭项目或重连 MCP 不足以刷新宿主环境块。
 
 ## 5. 预览并配置 Codex / Claude Code
 
@@ -157,7 +170,7 @@ $CbmBinary = Join-Path $env:CBM_INSTALL_DIR 'codebase-memory-mcp.exe'
 env_vars = ["CBM_CACHE_DIR", "CBM_RUNTIME_DIR"]
 ```
 
-这表示“若父进程存在这些变量则转发”，不是写入目录值。因此仍需让启动 Codex 的进程获得持久化环境。Claude Code 同样应从具有一致变量的环境启动；如由 GUI 启动，确认 GUI 进程能读取用户环境。
+这表示“若父进程存在这些变量则转发”，不是写入目录值。因此仍需让启动 Codex 的进程获得持久化环境。Codex 的 Scout/Verify/Auditor profile 及其 MCP 子进程也可能依赖宿主继承的环境，不能只在主 MCP entry 中写死目录。Claude Code 同样应从具有一致变量的环境启动；如由 GUI 启动，确认 GUI 进程能读取用户环境。
 
 ## 6. 开启自动索引和监听
 
@@ -194,13 +207,27 @@ check_index_coverage。仅在查找字面量、配置、非代码文件或图谱
 
 ## 8. 首次验证
 
+持久化并完全重启宿主后，打开一个新终端。不得在该终端中手工设置 `$env:CBM_CACHE_DIR`、`$env:CBM_RUNTIME_DIR` 或执行临时 `export`，直接运行：
+
 ```bash
 codebase-memory-mcp --version
 codebase-memory-mcp config list
 codebase-memory-mcp cli list_projects
 ```
 
-随后重启 Codex/Claude Code，在一个用户授权的 Git 项目内确认：
+Windows 还应先确认新进程继承值：
+
+```powershell
+$env:CBM_CACHE_DIR
+$env:CBM_RUNTIME_DIR
+[Environment]::GetEnvironmentVariable('CBM_CACHE_DIR', 'User')
+[Environment]::GetEnvironmentVariable('CBM_RUNTIME_DIR', 'User')
+codebase-memory-mcp --version
+codebase-memory-mcp config list
+codebase-memory-mcp cli list_projects
+```
+
+若保留默认 runtime，则 `$env:CBM_RUNTIME_DIR` 和 User scope 查询结果应为空。随后重启 Codex/Claude Code，在一个用户授权的 Git 项目内确认：
 
 - MCP 工具可见；
 - 新项目在文件限制内会异步自动索引；

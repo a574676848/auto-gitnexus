@@ -6,10 +6,11 @@
 
 - 从官方安装器和 GitHub Releases 安装 CBM，并校验来源与 checksum 流程。
 - 分离配置二进制目录、索引 cache 和 daemon runtime，支持将大体积索引放到其他卷。
+- 将目录配置持久化到当前用户环境，使主 Agent、分层 Agent profile 和手动 CLI 使用同一 cache/runtime。
 - 为 Codex 与 Claude Code 安装 MCP、Skill、分层 Agent profile 和 Hooks。
 - 开启 `auto_index` 与 `auto_watch`，并说明它们的真实边界。
 - 维护版本、索引健康和 graph-first 工作流。
-- 排查 Windows ACL、POSIX 权限、PATH、多版本、daemon、Hook 信任和大仓库限制。
+- 排查 Windows ACL、POSIX 权限、`Transport closed`、PATH、多版本、daemon、Hook 信任和大仓库限制。
 
 ## 使用方式
 
@@ -44,6 +45,7 @@ codebase-memory-mcp-setup/
 
 - `auto_index=true` 不会强制 Agent 调用 MCP，也不会扫描磁盘上的所有仓库。
 - `CBM_CACHE_DIR` 与 `CBM_RUNTIME_DIR` 是两个独立位置；只迁移大体积索引时无需迁移 runtime。
+- Windows 只设置当前 PowerShell 的 `$env:` 不会覆盖新启动的 GUI、Agent profile 或 CLI；必须同时写入当前用户环境并完全重启宿主。
 - CBM 私有目录安全校验没有绕过开关。应修复专用目录权限或更换目录，不能破坏系统或沙箱 ACL。
 - 更新和卸载默认保留用户索引数据，删除 cache 必须由用户明确授权。
 
