@@ -168,6 +168,7 @@ Windows WezTerm 安装：
 | [jira-integration](skills/jira-integration/) | Jira 工单管理集成 | "Jira", "工单", "创建工单", "查询工单", "更新工单" |
 | [repo-parser](skills/repo-parser/) | 仓库源码解析，支持 GitHub 及私有仓库 | "解析仓库", "读取代码", "查看仓库结构" |
 | [open-source-docs](skills/open-source-docs/) | 开源项目文档建设，重构 README、docs、示例说明与命名纠偏 | "重写 README", "整理 docs", "最佳开源项目文档", "中文友好化文档" |
+| [web-search](skills/web-search/) | 四路并行 web 搜索（Bing RSS / AnySearch / TinyFish / Tavily），跨源去重与共识排序 | "搜索", "联网", "查资料", "web search", "fact-check", "调研" |
 
 ## 📦 通用脚本
 
